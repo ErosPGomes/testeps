@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treino Excel PS</title>
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface-2:#f1efe9; --text:#1d1d1b; --muted:#6b6a65; --border:#e2dfd6;
+  --accent:#c8102e; --accent-ink:#ffffff; --hl:#ffcc00; --hl-soft:#fff5c7;
+  --ok:#1f7a3f; --ok-soft:#e2f3e7; --bad:#b3261e; --bad-soft:#fbe4e1; --info-soft:#eef2f8;
+  --mono:ui-monospace,"Cascadia Code",Consolas,"Courier New",monospace;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151513; --surface:#1f1f1c; --surface-2:#2a2925; --text:#ecebe6; --muted:#a4a39c; --border:#3a3934;
+    --accent:#ff5a66; --accent-ink:#1a0003; --hl:#ffcc00; --hl-soft:#4a3e0c;
+    --ok:#74d495; --ok-soft:#1b3a26; --bad:#ff8a80; --bad-soft:#47201c; --info-soft:#222a36;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151513; --surface:#1f1f1c; --surface-2:#2a2925; --text:#ecebe6; --muted:#a4a39c; --border:#3a3934;
+  --accent:#ff5a66; --accent-ink:#1a0003; --hl:#ffcc00; --hl-soft:#4a3e0c;
+  --ok:#74d495; --ok-soft:#1b3a26; --bad:#ff8a80; --bad-soft:#47201c; --info-soft:#222a36;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+code,.mono,.f-input,#fbAddr{font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+code,.mono{font-family:var(--mono)}
+h1,h2,h3{margin:0;line-height:1.25}
+
+/* topo */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:10px 20px;background:var(--surface);border-bottom:3px solid var(--hl)}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;background:var(--hl);color:#1d1d1b;font-weight:800;font-size:14px}
+.brand h1{font-size:17px}
+.brand p{margin:0;font-size:12.5px;color:var(--muted)}
+.prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.bar{width:140px;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.tabs{display:flex;gap:4px;background:var(--surface-2);padding:3px;border-radius:8px}
+.tabs button{border:0;background:none;padding:5px 12px;border-radius:6px;font-size:13.5px;color:var(--muted)}
+.tabs button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+
+/* layout */
+.app{display:grid;grid-template-columns:270px minmax(0,1fr);gap:20px;max-width:1280px;margin:0 auto;padding:20px}
+aside{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px}
+.grp{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:12px 8px 4px}
+.grp:first-child{margin-top:4px}
+.item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;padding:6px 8px;border-radius:6px;font-size:13.5px}
+.item:hover{background:var(--surface-2)}
+.item.on{background:var(--hl-soft);font-weight:600}
+.dot{flex:none;width:9px;height:9px;border-radius:50%;border:2px solid var(--border)}
+.item.done .dot{background:var(--ok);border-color:var(--ok)}
+#mobileSel{display:none}
+main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.card h3{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:10px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:12.5px}
+.chip{padding:2px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.chip.lvl{background:var(--hl-soft);color:var(--text)}
+#timer{margin-left:auto;font-variant-numeric:tabular-nums}
+.head h2{font-size:21px;margin-bottom:6px}
+.prose p{margin:.4em 0}
+.prose code,.note code,.fb code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:.92em}
+
+/* entradas */
+.alvo{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;padding:10px 0;border-top:1px dashed var(--border)}
+.alvo:first-child{border-top:0;padding-top:0}
+.alvo label{font-size:13px;color:var(--muted)}
+.alvo label b{color:var(--text);font-family:var(--mono)}
+.f-input{width:100%;font:15px var(--mono);padding:9px 11px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text)}
+.f-input:focus{outline:2px solid var(--hl);outline-offset:0;background:var(--surface)}
+.fb{font-size:13.5px;padding:7px 10px;border-radius:7px;margin-top:2px}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb.info{background:var(--info-soft);color:var(--text)}
+.fb .tip{display:block;margin-top:4px;color:var(--text);opacity:.9}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.actions button,.nav button{border:1px solid var(--border);background:var(--surface);padding:7px 14px;border-radius:7px;font-size:14px}
+.actions button:hover,.nav button:hover{background:var(--surface-2)}
+.actions .primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.actions .primary:hover{filter:brightness(1.08);background:var(--accent)}
+.note{margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--hl-soft);font-size:14px}
+.note .ans{display:block;font-family:var(--mono);margin:4px 0;word-break:break-all}
+.note .en{color:var(--muted);font-size:12.5px}
+.sep-info{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+
+/* grade estilo Excel */
+.fbar{display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px;font-size:13.5px}
+#fbAddr{flex:none;min-width:64px;padding:6px 10px;background:var(--surface-2);font-family:var(--mono);font-weight:600;border-right:1px solid var(--border)}
+#fbText{padding:6px 10px;white-space:nowrap;overflow:auto;background:none}
+.gridwrap{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:7px}
+table.grid{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+.grid th,.grid td{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:3px 8px;white-space:nowrap;height:26px}
+.grid thead th{position:sticky;top:0;z-index:2;background:var(--surface-2);color:var(--muted);font-weight:600;text-align:center;min-width:44px}
+.grid tbody th{position:sticky;left:0;z-index:1;background:var(--surface-2);color:var(--muted);font-weight:500;text-align:center;min-width:38px}
+.grid thead th:first-child{left:0;z-index:3}
+.grid td{background:var(--surface);cursor:cell;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.grid td.num{text-align:right;font-variant-numeric:tabular-nums}
+.grid td.hdr{font-weight:700;background:var(--surface-2)}
+.grid td.lbl{font-weight:600}
+.grid td.alvo{background:var(--hl-soft)}
+.grid td.ok{background:var(--ok-soft);color:var(--ok)}
+.grid td.bad{background:var(--bad-soft);color:var(--bad);font-weight:600}
+.grid td.err{color:var(--bad)}
+.grid td.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.nav{display:flex;justify-content:space-between}
+
+/* colinha */
+.cola{max-width:1100px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.cola table{width:100%;border-collapse:collapse;font-size:13.5px}
+.cola th,.cola td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--border)}
+.cola th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cola td code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);padding:1px 5px;border-radius:4px;word-break:break-word}
+.tblwrap{overflow-x:auto}
+.cards2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.mini{background:var(--surface-2);border-radius:8px;padding:12px 14px;font-size:13.5px}
+.mini b{display:block;font-family:var(--mono);margin-bottom:2px}
+
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr);padding:16px;gap:12px}
+  aside{display:none}
+  #mobileSel{display:block;width:100%;padding:9px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit}
+  .top{padding:10px 16px}
+  .bar{width:90px}
+  .card{padding:14px 16px}
+  .cola{padding:16px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="mark">fx</span>
+    <div><h1>Treino de Fórmulas</h1><p>Excel para a prova de Problem Solver · cenários de logística</p></div>
+  </div>
+  <div class="prog"><div class="bar"><i id="progFill"></i></div><span id="progTxt">0/0</span></div>
+  <nav class="tabs"><button data-tab="ex" class="on">Exercícios</button><button data-tab="cola">Colinha</button></nav>
+</header>
+
+<div id="view-ex" class="app">
+  <aside id="side"></aside>
+  <main>
+    <select id="mobileSel" aria-label="Escolher exercício"></select>
+    <section class="card head">
+      <div class="meta"><span class="chip" id="exCat"></span><span class="chip lvl" id="exLvl"></span><span class="chip" id="timer">⏱ 00:00</span></div>
+      <h2 id="exTitle"></h2>
+      <div id="exText" class="prose"></div>
+    </section>
+    <section class="card">
+      <h3>Suas fórmulas</h3>
+      <p class="sep-info">Pode usar <code>;</code> (Excel em português) ou <code>,</code> (inglês), e nomes de função em PT ou EN. Você digita a fórmula da <b>primeira</b> célula; o treino “arrasta” ela pelo resto do intervalo, igual ao Excel.</p>
+      <div id="alvos"></div>
+      <div class="actions">
+        <button id="btnCheck" class="primary">Verificar (Enter)</button>
+        <button id="btnHint">Dica</button>
+        <button id="btnAns">Gabarito</button>
+        <button id="btnClear">Limpar</button>
+      </div>
+      <div id="hint" class="note" hidden></div>
+      <div id="ans" class="note" hidden></div>
+    </section>
+    <section class="card">
+      <div class="fbar"><span id="fbAddr">—</span><code id="fbText">Clique numa célula para ver o valor ou a fórmula</code></div>
+      <div class="gridwrap"><table class="grid" id="grid"></table></div>
+      <div class="legend">
+        <span style="--c:var(--hl-soft)">célula para preencher</span>
+        <span style="--c:var(--ok-soft)">certa</span>
+        <span style="--c:var(--bad-soft)">diferente do esperado</span>
+      </div>
+    </section>
+    <div class="nav"><button id="prev">← Anterior</button><button id="next">Próximo →</button></div>
+  </main>
+</div>
+
+<div id="view-cola" class="cola" hidden>
+  <section class="card">
+    <h3>Funções que mais caem</h3>
+    <div class="tblwrap"><table>
+      <thead><tr><th>Português</th><th>Inglês</th><th>Sintaxe</th><th>Pegadinha</th></tr></thead>
+      <tbody id="colaBody"></tbody>
+    </table></div>
+  </section>
+  <section class="card">
+    <h3>Referências ($) — tecla F4 alterna</h3>
+    <div class="cards2">
+      <div class="mini"><b>A1</b>Relativa: muda linha e coluna ao arrastar.</div>
+      <div class="mini"><b>$A$1</b>Absoluta: nunca muda. Use em tabelas de busca e células de critério/meta.</div>
+      <div class="mini"><b>A$1</b>Linha travada: útil em cabeçalhos de coluna de uma matriz.</div>
+      <div class="mini"><b>$A1</b>Coluna travada: útil nos rótulos de linha de uma matriz.</div>
+    </div>
+  </section>
+  <section class="card">
+    <h3>Erros e o que significam</h3>
+    <div class="cards2">
+      <div class="mini"><b>#N/D</b>Não encontrou o valor (PROCV/CORRESP). Chave errada, espaço sobrando, número salvo como texto ou intervalo que “andou” por falta de $.</div>
+      <div class="mini"><b>#VALOR!</b>Tipo errado: conta com texto, ou nº de coluna inválido.</div>
+      <div class="mini"><b>#NOME?</b>Função escrita errado ou texto sem aspas.</div>
+      <div class="mini"><b>#REF!</b>Referência inválida: nº de coluna do PROCV maior que a tabela, ou célula apagada.</div>
+      <div class="mini"><b>#DIV/0!</b>Divisão por zero ou vazio. Proteja com SEERRO ou SE(B2=0;…).</div>
+      <div class="mini"><b>#CALC!</b>FILTRO não encontrou nada (Excel 365). Use o 3º argumento.</div>
+    </div>
+  </section>
+  <section class="card">
+    <h3>Além das fórmulas (costuma cair em prova de Problem Solver)</h3>
+    <div class="cards2">
+      <div class="mini"><b>Tabela dinâmica</b>Inserir › Tabela Dinâmica. Linhas = categoria, Valores = Soma/Contagem. Treine filtrar e mudar “Resumir valores por”.</div>
+      <div class="mini"><b>Filtro e classificação</b>Ctrl+Shift+L liga o filtro. Classificar por mais de um nível (Dados › Classificar).</div>
+      <div class="mini"><b>Remover duplicatas</b>Dados › Remover Duplicatas — ou ÚNICO() se for 365.</div>
+      <div class="mini"><b>Formatação condicional</b>Destacar atrasados, top 10, barras de dados. Regra por fórmula: <code>=$D2="ATRASADO"</code>.</div>
+      <div class="mini"><b>Atalhos</b>Ctrl+↓ fim da coluna · Ctrl+Shift+↓ seleciona · Ctrl+T vira tabela · duplo-clique no canto preenche até o fim.</div>
+      <div class="mini"><b>Raciocínio</b>Leia o enunciado, ache a chave (ROTA, código, cidade), decida: contar, somar ou buscar? Depois escolha a função.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   COMO ADICIONAR UM EXERCÍCIO (modelo)
+   ---------------------------------------------------------------------
+   Inclua um objeto no array EXERCICIOS (mais abaixo) com:
+     id:        texto único (usado para salvar progresso)
+     cat:       grupo no menu lateral
+     nivel:     1, 2 ou 3
+     titulo, enunciado (HTML), dica, explica (HTML do gabarito)
+     grid:      matriz de linhas a partir de A1 (use null para célula vazia)
+     extra:     { "G1": 6, "F1": "Nota mínima" }  células soltas fora da grade
+     alvos:     [{ celulas:"C2:C21", resposta:'=SE(B2>=$G$1;"APROVADO";"REPROVADO")',
+                   rotulo:"Situação", tol:0.05 (opcional), fmt:"pct"|"dec1"|"dec2" (opcional) }]
+                O aluno digita a fórmula da 1ª célula; ela é “arrastada” no intervalo.
+                O resultado esperado é calculado pela própria "resposta".
+     testes:    [{ set:{ "G1":7 }, msg:"..." }]  (opcional) muda dados e confere de novo,
+                pegando quem digitou valor fixo na fórmula em vez de referenciar a célula.
+   ===================================================================== */
+
+/* ---------------- motor de fórmulas (mini-Excel) ---------------- */
+const E = { NA:"#N/D", VAL:"#VALOR!", DIV:"#DIV/0!", NAME:"#NOME?", REF:"#REF!", NUM:"#NÚM!", CALC:"#CALC!", CIRC:"#CIRCULAR!" };
+class XErr { constructor(code){ this.code = code; } }
+class Arr { constructor(rows){ this.rows = rows; } get h(){ return this.rows.length; } get w(){ return this.rows[0] ? this.rows[0].length : 0; } flat(){ return this.rows.flat(); } }
+class FSyntax extends Error {}
+const err = c => new XErr(c);
+const isErr = v => v instanceof XErr;
+const isArr = v => v instanceof Arr;
+const asArr = v => isArr(v) ? v : new Arr([[v]]);
+const scalar = v => isArr(v) ? (v.h ? v.rows[0][0] : err(E.CALC)) : v;
+const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+const colToNum = s => { let n = 0; for (const ch of s.toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64; return n; };
+const numToCol = n => { let s = ""; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+const parseAddr = a => { const m = /^([A-Z]+)(\d+)$/i.exec(a.replace(/\$/g, "")); return { c: colToNum(m[1]), r: +m[2] }; };
+const addrOf = (c, r) => numToCol(c) + r;
+function parseRange(rg){
+  const [a, b] = rg.split(":"); const A = parseAddr(a), B = b ? parseAddr(b) : A;
+  return { c1: Math.min(A.c, B.c), r1: Math.min(A.r, B.r), c2: Math.max(A.c, B.c), r2: Math.max(A.r, B.r) };
+}
+
+const REF_RE = /^(\$?)([A-Za-z]{1,3})(\$?)(\d+)(?![A-Za-z0-9_(.])/;
+const COLR_RE = /^(\$?)([A-Za-z]{1,3}):(\$?)([A-Za-z]{1,3})(?![A-Za-z0-9_(.])/;
+const mkRef = m => ({ ac: !!m[1], c: colToNum(m[2]), ar: !!m[3], r: +m[4] });
+
+function tokenize(src){
+  const s = src.replace(/^\s*=/, "");
+  let semi = false, q = false;
+  for (const ch of s) { if (ch === '"') q = !q; else if (!q && ch === ";") { semi = true; break; } }
+  const numRe = semi ? /^\d+(?:[.,]\d+)?(?:[eE][+-]?\d+)?/ : /^\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/;
+  const toks = []; let i = 0;
+  while (i < s.length) {
+    let ws = ""; while (i < s.length && /\s/.test(s[i])) ws += s[i++];
+    if (i >= s.length) break;
+    const rest = s.slice(i), ch = s[i]; let m;
+    if (ch === '"') {
+      let j = i + 1, v = "";
+      for (;;) {
+        if (j >= s.length) throw new FSyntax('aspas "..." não foram fechadas.');
+        if (s[j] === '"') { if (s[j + 1] === '"') { v += '"'; j += 2; continue; } break; }
+        v += s[j++];
+      }
+      toks.push({ t: "str", v, ws }); i = j + 1; continue;
+    }
+    if ((m = COLR_RE.exec(rest))) {
+      toks.push({ t: "ref", col: true, ws, refs: [{ ac: !!m[1], c: colToNum(m[2]), r: null }, { ac: !!m[3], c: colToNum(m[4]), r: null }] });
+      i += m[0].length; continue;
+    }
+    if ((m = REF_RE.exec(rest))) {
+      const refs = [mkRef(m)]; i += m[0].length; let mm;
+      while (s[i] === ":" && (mm = REF_RE.exec(s.slice(i + 1)))) { refs.push(mkRef(mm)); i += 1 + mm[0].length; }
+      toks.push({ t: "ref", refs, ws }); continue;
+    }
+    if ((m = numRe.exec(rest))) { toks.push({ t: "num", v: parseFloat(m[0].replace(",", ".")), raw: m[0], ws }); i += m[0].length; continue; }
+    if ((m = /^[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_.]*/.exec(rest))) {
+      const raw = m[0]; i += raw.length;
+      let j = i; while (j < s.length && /\s/.test(s[j])) j++;
+      const n = norm(raw).replace(/^_XLFN\./, "");
+      if (s[j] === "(") toks.push({ t: "fn", v: n, raw, ws });
+      else if (n === "VERDADEIRO" || n === "TRUE") toks.push({ t: "bool", v: true, raw, ws });
+      else if (n === "FALSO" || n === "FALSE") toks.push({ t: "bool", v: false, raw, ws });
+      else toks.push({ t: "name", v: raw, raw, ws });
+      continue;
+    }
+    if ((m = /^(<=|>=|<>)/.exec(rest))) { toks.push({ t: "op", v: m[1], ws }); i += 2; continue; }
+    if ("+-*/^&=<>%".includes(ch)) { toks.push({ t: "op", v: ch, ws }); i++; continue; }
+    if (ch === "(" || ch === ")") { toks.push({ t: ch, ws }); i++; continue; }
+    if (ch === (semi ? ";" : ",")) { toks.push({ t: "sep", v: ch, ws }); i++; continue; }
+    throw new FSyntax(`caractere inesperado "${ch}".`);
+  }
+  return { toks, semi };
+}
+
+function parseFormula(src){
+  const { toks, semi } = tokenize(src);
+  let p = 0;
+  const peek = () => toks[p], next = () => toks[p++];
+  const isOp = v => { const t = peek(); return t && t.t === "op" && (Array.isArray(v) ? v.includes(t.v) : t.v === v); };
+  const expr = () => comparison();
+  function comparison(){ let a = concat(); while (isOp(["=", "<>", "<", ">", "<=", ">="])) { const op = next().v; a = { k: "bin", op, a, b: concat() }; } return a; }
+  function concat(){ let a = additive(); while (isOp("&")) { next(); a = { k: "bin", op: "&", a, b: additive() }; } return a; }
+  function additive(){ let a = mult(); while (isOp(["+", "-"])) { const op = next().v; a = { k: "bin", op, a, b: mult() }; } return a; }
+  function mult(){ let a = power(); while (isOp(["*", "/"])) { const op = next().v; a = { k: "bin", op, a, b: power() }; } return a; }
+  function power(){ let a = unary(); while (isOp("^")) { next(); a = { k: "bin", op: "^", a, b: unary() }; } return a; }
+  function unary(){ if (isOp(["+", "-"])) { const op = next().v; const x = unary(); return op === "-" ? { k: "neg", x } : x; } return postfix(); }
+  function postfix(){ let x = primary(); while (isOp("%")) { next(); x = { k: "pct", x }; } return x; }
+  function primary(){
+    const t = next();
+    if (!t) throw new FSyntax("a fórmula terminou antes do esperado.");
+    switch (t.t) {
+      case "num": return { k: "num", v: t.v };
+      case "str": return { k: "str", v: t.v };
+      case "bool": return { k: "bool", v: t.v };
+      case "name": return { k: "name", v: t.v };
+      case "ref": return { k: "ref", refs: t.refs, col: !!t.col };
+      case "(": {
+        const x = expr();
+        if (!peek() || peek().t !== ")") throw new FSyntax('falta fechar um parêntese ")".');
+        next(); return x;
+      }
+      case "fn": {
+        next(); // "("
+        const args = [];
+        if (peek() && peek().t === ")") { next(); return { k: "fn", name: t.v, raw: t.raw, args }; }
+        for (;;) {
+          if (peek() && (peek().t === "sep" || peek().t === ")")) args.push({ k: "missing" });
+          else args.push(expr());
+          if (!peek()) throw new FSyntax(`falta fechar o parêntese de ${t.raw}( .`);
+          if (peek().t === "sep") { next(); continue; }
+          if (peek().t === ")") { next(); break; }
+          throw new FSyntax(`esperava "${semi ? ";" : ","}" ou ")" dentro de ${t.raw}( .`);
+        }
+        return { k: "fn", name: t.v, raw: t.raw, args };
+      }
+      case ")": throw new FSyntax('tem um ")" sobrando.');
+      case "sep": throw new FSyntax(`separador "${t.v}" fora de uma função.`);
+      default: throw new FSyntax(`operador "${t.v}" em posição inválida.`);
+    }
+  }
+  if (!toks.length) throw new FSyntax("fórmula vazia.");
+  const ast = expr();
+  if (p < toks.length) {
+    const t = toks[p];
+    throw new FSyntax(t.t === ")" ? 'tem um ")" sobrando.' : `sobrou "${tokText(t)}" depois do fim da fórmula — faltou um operador ou separador?`);
+  }
+  return { ast, toks, semi };
+}
+
+function refText(r, dr, dc){
+  const c = r.ac ? r.c : r.c + dc;
+  const col = (r.ac ? "$" : "") + (c >= 1 ? numToCol(c) : "#REF");
+  if (r.r === null) return col;
+  const row = r.ar ? r.r : r.r + dr;
+  return col + (r.ar ? "$" : "") + (row >= 1 ? row : "#REF");
+}
+function tokText(t, dr = 0, dc = 0, en = false){
+  switch (t.t) {
+    case "num": return en ? String(t.v) : t.raw;
+    case "str": return '"' + t.v.replace(/"/g, '""') + '"';
+    case "ref": return t.refs.map(r => refText(r, dr, dc)).join(":");
+    case "fn": return en ? (PT2EN[t.v] || t.raw) : t.raw;
+    case "bool": return en ? (t.v ? "TRUE" : "FALSE") : t.raw;
+    case "name": return t.raw;
+    case "op": return t.v;
+    case "sep": return en ? "," : t.v;
+    default: return t.t;
+  }
+}
+const formulaText = (toks, dr = 0, dc = 0, en = false) => "=" + toks.map(t => t.ws + tokText(t, dr, dc, en)).join("").trim();
+
+/* coerções */
+function toNumLoose(s){ const t = String(s).trim().replace(",", "."); return /^[+-]?\d+(\.\d+)?$/.test(t) ? parseFloat(t) : null; }
+function toNum(v){
+  if (isErr(v)) return v;
+  if (typeof v === "number") return v;
+  if (typeof v === "boolean") return v ? 1 : 0;
+  if (v === null) return 0;
+  const n = toNumLoose(v); return n === null ? err(E.VAL) : n;
+}
+const fmtNum = n => String(+n.toPrecision(15)).replace(".", ",");
+function toStr(v){ if (v === null) return ""; if (typeof v === "boolean") return v ? "VERDADEIRO" : "FALSO"; if (typeof v === "number") return fmtNum(v); return String(v); }
+function toBool(v){
+  if (isErr(v)) return v;
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  if (v === null) return false;
+  const n = norm(v); if (n === "VERDADEIRO" || n === "TRUE") return true; if (n === "FALSO" || n === "FALSE") return false;
+  return err(E.VAL);
+}
+function cmp(a, b){
+  if (a === null) a = typeof b === "string" ? "" : typeof b === "boolean" ? false : 0;
+  if (b === null) b = typeof a === "string" ? "" : typeof a === "boolean" ? false : 0;
+  const rk = v => typeof v === "number" ? 0 : typeof v === "string" ? 1 : 2;
+  if (rk(a) !== rk(b)) return rk(a) - rk(b);
+  if (typeof a === "string") return Math.sign(a.localeCompare(b, "pt-BR", { sensitivity: "accent" }));
+  return a === b ? 0 : a < b ? -1 : 1;
+}
+const sameType = (a, b) => typeof a === typeof b;
+
+function lift1(v, f){ return isArr(v) ? new Arr(v.rows.map(r => r.map(f))) : f(v); }
+function lift2(a, b, f){
+  if (!isArr(a) && !isArr(b)) return f(a, b);
+  const A = asArr(a), B = asArr(b), h = Math.max(A.h, B.h), w = Math.max(A.w, B.w);
+  const g = (M, i, j) => { const ii = M.h === 1 ? 0 : i, jj = M.w === 1 ? 0 : j; return ii < M.h && jj < M.w ? M.rows[ii][jj] : err(E.NA); };
+  const rows = [];
+  for (let i = 0; i < h; i++) { const row = []; for (let j = 0; j < w; j++) row.push(f(g(A, i, j), g(B, i, j))); rows.push(row); }
+  return new Arr(rows);
+}
+function binop(op, a, b){
+  return lift2(a, b, (x, y) => {
+    if (isErr(x)) return x; if (isErr(y)) return y;
+    if (op === "&") return toStr(x) + toStr(y);
+    if (["=", "<>", "<", ">", "<=", ">="].includes(op)) {
+      const c = cmp(x, y);
+      return op === "=" ? c === 0 : op === "<>" ? c !== 0 : op === "<" ? c < 0 : op === ">" ? c > 0 : op === "<=" ? c <= 0 : c >= 0;
+    }
+    const n1 = toNum(x), n2 = toNum(y);
+    if (isErr(n1)) return n1; if (isErr(n2)) return n2;
+    switch (op) {
+      case "+": return n1 + n2; case "-": return n1 - n2; case "*": return n1 * n2;
+      case "/": return n2 === 0 ? err(E.DIV) : n1 / n2;
+      case "^": return Math.pow(n1, n2);
+    }
+  });
+}
+
+function evaluate(node, sh, dr, dc){
+  switch (node.k) {
+    case "num": case "str": case "bool": return node.v;
+    case "missing": return null;
+    case "name": return err(E.NAME);
+    case "ref": {
+      const pts = node.refs.map(r => ({ c: r.ac ? r.c : r.c + dc, r: r.r === null ? null : (r.ar ? r.r : r.r + dr) }));
+      if (pts.some(q => q.c < 1 || (q.r !== null && q.r < 1))) return err(E.REF);
+      const cs = pts.map(q => q.c);
+      if (node.col) return sh.range(Math.min(...cs), 1, Math.max(...cs), sh.maxRow);
+      if (pts.length === 1) return sh.get(pts[0].c, pts[0].r);
+      const rs = pts.map(q => q.r);
+      return sh.range(Math.min(...cs), Math.min(...rs), Math.max(...cs), Math.max(...rs));
+    }
+    case "neg": return lift1(evaluate(node.x, sh, dr, dc), v => { const n = toNum(v); return isErr(n) ? n : -n; });
+    case "pct": return lift1(evaluate(node.x, sh, dr, dc), v => { const n = toNum(v); return isErr(n) ? n : n / 100; });
+    case "bin": return binop(node.op, evaluate(node.a, sh, dr, dc), evaluate(node.b, sh, dr, dc));
+    case "fn": {
+      const f = FN[node.name];
+      if (!f) return err(E.NAME);
+      const given = node.args.map(a => a.k !== "missing");
+      if (f.lazy) return f(i => i < node.args.length ? evaluate(node.args[i], sh, dr, dc) : null, node.args.length, given);
+      return f(node.args.map(a => evaluate(a, sh, dr, dc)), given);
+    }
+  }
+  return err(E.VAL);
+}
+
+class Sheet {
+  constructor(){ this.cells = new Map(); this.maxRow = 1; this.maxCol = 1; }
+  k(c, r){ return c + "," + r; }
+  bump(c, r){ if (r > this.maxRow) this.maxRow = r; if (c > this.maxCol) this.maxCol = c; }
+  setValue(c, r, v){ this.cells.set(this.k(c, r), { v }); this.bump(c, r); }
+  setFormula(c, r, p, dr, dc){ this.cells.set(this.k(c, r), { p, dr, dc }); this.bump(c, r); }
+  cell(c, r){ return this.cells.get(this.k(c, r)); }
+  get(c, r){
+    const cell = this.cell(c, r);
+    if (!cell) return null;
+    if ("v" in cell) return cell.v;
+    if ("cache" in cell) return cell.cache;
+    if (cell.busy) return err(E.CIRC);
+    cell.busy = true;
+    let v;
+    try { v = evaluate(cell.p.ast, this, cell.dr, cell.dc); } catch (e) { v = err("#ERRO"); }
+    cell.busy = false;
+    if (isArr(v)) v = v.h ? v.rows[0][0] : err(E.CALC);
+    if (v === null || v === undefined) v = 0;
+    cell.cache = v;
+    return v;
+  }
+  range(c1, r1, c2, r2){
+    const rows = [];
+    for (let r = r1; r <= r2; r++) { const row = []; for (let c = c1; c <= c2; c++) row.push(this.get(c, r)); rows.push(row); }
+    return new Arr(rows);
+  }
+}
+
+/* critérios de CONT.SE / SOMASE */
+function wild(s){
+  const esc = s.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/~\*/g, "\u0001").replace(/~\?/g, "\u0002")
+    .replace(/\*/g, ".*").replace(/\?/g, ".").replace(/\u0001/g, "\\*").replace(/\u0002/g, "\\?");
+  return new RegExp("^" + esc + "$", "is");
+}
+function crit(c){
+  c = scalar(c);
+  if (isErr(c)) return () => false;
+  if (typeof c === "number") return v => typeof v === "number" ? v === c : typeof v === "string" && toNumLoose(v) === c;
+  if (typeof c === "boolean") return v => v === c;
+  if (c === null) c = "";
+  const m = /^(<=|>=|<>|<|>|=)?([\s\S]*)$/.exec(String(c)); const op = m[1] || "", val = m[2];
+  const n = val.trim() !== "" ? toNumLoose(val) : null;
+  if (n !== null) {
+    const t = { "": x => x === n, "=": x => x === n, "<>": x => x !== n, "<": x => x < n, ">": x => x > n, "<=": x => x <= n, ">=": x => x >= n }[op];
+    return v => { const x = typeof v === "number" ? v : typeof v === "string" ? toNumLoose(v) : null; return x === null ? op === "<>" : t(x); };
+  }
+  if (val === "") return op === "<>" ? v => v !== null && v !== "" : v => v === null || v === "";
+  if (op === "" || op === "=" || op === "<>") {
+    const re = wild(val); const f = v => v !== null && typeof v !== "number" && re.test(toStr(v));
+    return op === "<>" ? v => !f(v) : f;
+  }
+  return v => { if (typeof v !== "string") return false; const r = cmp(v, val); return op === "<" ? r < 0 : op === ">" ? r > 0 : op === "<=" ? r <= 0 : r >= 0; };
+}
+function lookupIndex(val, list, mode){ // mode: "exact" | "approx"
+  val = scalar(val);
+  if (isErr(val)) return -1;
+  if (mode === "exact") {
+    if (typeof val === "string" && /[*?]/.test(val)) { const re = wild(val); return list.findIndex(x => typeof x === "string" && re.test(x)); }
+    return list.findIndex(x => x !== null && sameType(x, val) && cmp(x, val) === 0);
+  }
+  let lo = 0, hi = list.length - 1, ans = -1; // busca binária, como o Excel (exige lista ordenada)
+  while (lo <= hi) { const mid = (lo + hi) >> 1, x = list[mid]; if (x !== null && sameType(x, val) && cmp(x, val) <= 0) { ans = mid; lo = mid + 1; } else hi = mid - 1; }
+  return ans;
+}
+function firstErr(...vs){ for (const v of vs) { const s = scalar(v); if (isErr(s)) return s; } return null; }
+function numsOf(vals){
+  const out = [];
+  for (const a of vals) {
+    if (isArr(a)) { for (const x of a.flat()) { if (isErr(x)) return x; if (typeof x === "number") out.push(x); } }
+    else if (a !== null) { const n = toNum(a); if (isErr(n)) return n; out.push(n); }
+  }
+  return out;
+}
+function roundTo(n, d, how){
+  const p = Math.pow(10, d), x = +(Math.abs(n) * p).toPrecision(15);
+  const r = how === "up" ? Math.ceil(x) : how === "down" ? Math.floor(x) : Math.round(x);
+  return Math.sign(n) * r / p;
+}
+function ifsCore(vals, start, sumArr){ // pares intervalo/critério a partir de 'start'
+  const pairs = [];
+  for (let i = start; i + 1 < vals.length; i += 2) pairs.push([asArr(vals[i]), crit(vals[i + 1])]);
+  if (!pairs.length) return err(E.VAL);
+  const H = pairs[0][0].h, W = pairs[0][0].w;
+  if (pairs.some(([R]) => R.h !== H || R.w !== W) || (sumArr && (sumArr.h !== H || sumArr.w !== W))) return err(E.VAL);
+  const hits = [];
+  for (let i = 0; i < H; i++) for (let j = 0; j < W; j++) if (pairs.every(([R, f]) => f(R.rows[i][j]))) hits.push([i, j]);
+  return hits;
+}
+
+const FN = {}, PT2EN = {};
+function def(pt, en, fn, lazy){
+  fn.lazy = !!lazy;
+  for (const n of [pt, en].concat(fn.alias || [])) FN[norm(n)] = fn;
+  PT2EN[norm(pt)] = en; PT2EN[norm(en)] = en;
+}
+const alias = (fn, ...names) => { fn.alias = names; return fn; };
+
+def("SE", "IF", (ev, n, given) => {
+  const c = toBool(scalar(ev(0))); if (isErr(c)) return c;
+  if (c) return n > 1 ? (given[1] ? ev(1) : 0) : true;
+  return n > 2 ? (given[2] ? ev(2) : 0) : false;
+}, true);
+def("SES", "IFS", (ev, n) => {
+  for (let i = 0; i + 1 < n; i += 2) { const c = toBool(scalar(ev(i))); if (isErr(c)) return c; if (c) return ev(i + 1); }
+  return err(E.NA);
+}, true);
+def("SEERRO", "IFERROR", (ev) => { const v = ev(0); if (isArr(v)) { let alt; return lift1(v, x => isErr(x) ? (alt ??= scalar(ev(1))) : x); } return isErr(v) ? ev(1) : v; }, true);
+def("SENÃODISP", "IFNA", (ev) => { const v = ev(0); return isErr(v) && v.code === E.NA ? ev(1) : v; }, true);
+function logicVals(vals){
+  const out = [];
+  for (const a of vals) {
+    if (isArr(a)) { for (const x of a.flat()) { if (isErr(x)) return x; if (typeof x === "boolean" || typeof x === "number") out.push(!!x); } }
+    else { const b = toBool(a); if (isErr(b)) return b; out.push(b); }
+  }
+  return out.length ? out : err(E.VAL);
+}
+def("E", "AND", (vals) => { const b = logicVals(vals); return isErr(b) ? b : b.every(Boolean); });
+def("OU", "OR", (vals) => { const b = logicVals(vals); return isErr(b) ? b : b.some(Boolean); });
+def("NÃO", "NOT", ([v]) => { const b = toBool(scalar(v)); return isErr(b) ? b : !b; });
+def("VERDADEIRO", "TRUE", () => true);
+def("FALSO", "FALSE", () => false);
+
+def("SOMA", "SUM", (vals) => { const n = numsOf(vals); return isErr(n) ? n : n.reduce((a, b) => a + b, 0); });
+def("MÉDIA", "AVERAGE", (vals) => { const n = numsOf(vals); return isErr(n) ? n : n.length ? n.reduce((a, b) => a + b, 0) / n.length : err(E.DIV); });
+def("MÁXIMO", "MAX", (vals) => { const n = numsOf(vals); return isErr(n) ? n : n.length ? Math.max(...n) : 0; });
+def("MÍNIMO", "MIN", (vals) => { const n = numsOf(vals); return isErr(n) ? n : n.length ? Math.min(...n) : 0; });
+def("CONT.VALORES", "COUNTA", (vals, given) => vals.reduce((s, a, i) => s + (isArr(a) ? a.flat().filter(x => x !== null).length : given[i] ? 1 : 0), 0));
+def("CONT.NÚM", "COUNT", (vals) => vals.reduce((s, a) => s + (isArr(a) ? a.flat().filter(x => typeof x === "number").length : (typeof a === "number" || (typeof a === "string" && toNumLoose(a) !== null)) ? 1 : 0), 0));
+def("CONT.VAZIO", "COUNTBLANK", ([a]) => asArr(a).flat().filter(x => x === null || x === "").length);
+def("CONT.SE", "COUNTIF", ([r, c]) => { const f = crit(c); return asArr(r).flat().filter(f).length; });
+def("CONT.SES", "COUNTIFS", (vals) => { const h = ifsCore(vals, 0); return isErr(h) ? h : h.length; });
+def("SOMASE", "SUMIF", ([r, c, s], given) => {
+  const R = asArr(r), S = given[2] ? asArr(s) : R, f = crit(c); let t = 0;
+  for (let i = 0; i < R.h; i++) for (let j = 0; j < R.w; j++) if (f(R.rows[i][j])) { const x = S.rows[i] ? S.rows[i][j] : null; if (isErr(x)) return x; if (typeof x === "number") t += x; }
+  return t;
+});
+def("SOMASES", "SUMIFS", (vals) => {
+  const S = asArr(vals[0]), h = ifsCore(vals, 1, S); if (isErr(h)) return h;
+  let t = 0; for (const [i, j] of h) { const x = S.rows[i][j]; if (isErr(x)) return x; if (typeof x === "number") t += x; } return t;
+});
+def("MÉDIASE", "AVERAGEIF", ([r, c, s], given) => {
+  const R = asArr(r), S = given[2] ? asArr(s) : R, f = crit(c); let t = 0, k = 0;
+  for (let i = 0; i < R.h; i++) for (let j = 0; j < R.w; j++) if (f(R.rows[i][j])) { const x = S.rows[i] ? S.rows[i][j] : null; if (typeof x === "number") { t += x; k++; } }
+  return k ? t / k : err(E.DIV);
+});
+def("MÉDIASES", "AVERAGEIFS", (vals) => {
+  const S = asArr(vals[0]), h = ifsCore(vals, 1, S); if (isErr(h)) return h;
+  const xs = h.map(([i, j]) => S.rows[i][j]).filter(x => typeof x === "number");
+  return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : err(E.DIV);
+});
+def("SOMARPRODUTO", "SUMPRODUCT", (vals) => {
+  const As = vals.map(asArr), H = As[0].h, W = As[0].w;
+  if (As.some(A => A.h !== H || A.w !== W)) return err(E.VAL);
+  let t = 0;
+  for (let i = 0; i < H; i++) for (let j = 0; j < W; j++) {
+    let p = 1; for (const A of As) { const x = A.rows[i][j]; if (isErr(x)) return x; p *= typeof x === "number" ? x : 0; } t += p;
+  }
+  return t;
+});
+
+def("PROCV", "VLOOKUP", ([v, tab, col, ap], given) => {
+  const e = firstErr(v, col); if (e) return e;
+  const T = asArr(tab); let ci = toNum(scalar(col)); if (isErr(ci)) return ci; ci = Math.trunc(ci);
+  if (ci < 1) return err(E.VAL); if (ci > T.w) return err(E.REF);
+  const approx = given.length < 4 ? true : toBool(scalar(ap ?? false)) === true;
+  const i = lookupIndex(v, T.rows.map(r => r[0]), approx ? "approx" : "exact");
+  return i < 0 ? err(E.NA) : T.rows[i][ci - 1];
+});
+def("CORRESP", "MATCH", ([v, arr, type], given) => {
+  const e = firstErr(v); if (e) return e;
+  const t = given.length > 2 ? toNum(scalar(type)) : 1;
+  const i = lookupIndex(v, asArr(arr).flat(), t === 0 ? "exact" : "approx");
+  return i < 0 ? err(E.NA) : i + 1;
+});
+def("ÍNDICE", "INDEX", ([arr, r, c], given) => {
+  const A = asArr(arr); let rr = toNum(scalar(r)); if (isErr(rr)) return rr;
+  let cc = given.length > 2 && given[2] ? toNum(scalar(c)) : null; if (isErr(cc)) return cc;
+  if (cc === null) { if (A.h === 1) { cc = rr; rr = 1; } else if (A.w === 1) cc = 1; else return rr >= 1 && rr <= A.h ? new Arr([A.rows[rr - 1]]) : err(E.REF); }
+  rr = Math.trunc(rr); cc = Math.trunc(cc);
+  if (rr < 1 || cc < 1 || rr > A.h || cc > A.w) return err(E.REF);
+  return A.rows[rr - 1][cc - 1];
+});
+def("PROCX", "XLOOKUP", ([v, la, ra, nf, mode], given) => {
+  const e = firstErr(v); if (e) return e;
+  const L = asArr(la), R = asArr(ra), vert = L.w === 1, list = L.flat();
+  const md = given.length > 4 && given[4] ? toNum(scalar(mode)) : 0;
+  let i;
+  if (md === 0 || md === 2) i = lookupIndex(v, list, "exact");
+  else { // -1: exato ou próximo menor | 1: exato ou próximo maior
+    const val = scalar(v); i = -1;
+    list.forEach((x, k) => { if (x === null || !sameType(x, val)) return; const c = cmp(x, val); if (c === 0 && (i < 0 || cmp(list[i], val) !== 0)) i = k; else if (md === -1 ? c < 0 : c > 0) { if (i < 0 || (cmp(list[i], val) !== 0 && (md === -1 ? cmp(x, list[i]) > 0 : cmp(x, list[i]) < 0))) i = k; } });
+  }
+  if (i < 0) return given.length > 3 && given[3] ? nf : err(E.NA);
+  if (vert) return R.w === 1 ? R.rows[i][0] : new Arr([R.rows[i]]);
+  return R.h === 1 ? R.rows[0][i] : new Arr(R.rows.map(r => [r[i]]));
+});
+def("ÚNICO", "UNIQUE", ([a]) => {
+  const A = asArr(a), seen = new Set(), rows = [];
+  for (const r of A.rows) { const key = r.map(x => norm(toStr(x))).join("\u0001"); if (!seen.has(key)) { seen.add(key); rows.push(r); } }
+  return new Arr(rows);
+});
+def("FILTRO", "FILTER", ([a, inc, ifEmpty], given) => {
+  const A = asArr(a), I = asArr(inc); let rows;
+  if (I.w === 1 && I.h === A.h) rows = A.rows.filter((_, i) => toBool(I.rows[i][0]) === true);
+  else if (I.h === 1 && I.w === A.w) { const keep = I.rows[0].map(x => toBool(x) === true); rows = A.rows.map(r => r.filter((_, j) => keep[j])); if (!rows[0].length) rows = []; }
+  else return err(E.VAL);
+  if (!rows.length) return given[2] ? ifEmpty : err(E.CALC);
+  return new Arr(rows);
+});
+def("LINS", "ROWS", ([a]) => isErr(a) ? a : isArr(a) ? a.h : 1);
+def("COLS", "COLUMNS", ([a]) => isErr(a) ? a : isArr(a) ? a.w : 1);
+
+def("ARRED", "ROUND", ([n, d]) => { const x = toNum(scalar(n)), y = toNum(scalar(d)); return firstErr(x, y) || roundTo(x, Math.trunc(y)); });
+def("ARREDONDAR.PARA.CIMA", "ROUNDUP", ([n, d]) => { const x = toNum(scalar(n)), y = toNum(scalar(d)); return firstErr(x, y) || roundTo(x, Math.trunc(y), "up"); });
+def("ARREDONDAR.PARA.BAIXO", "ROUNDDOWN", ([n, d]) => { const x = toNum(scalar(n)), y = toNum(scalar(d)); return firstErr(x, y) || roundTo(x, Math.trunc(y), "down"); });
+def("INT", "INT", ([n]) => { const x = toNum(scalar(n)); return isErr(x) ? x : Math.floor(x); });
+def("ABS", "ABS", ([n]) => { const x = toNum(scalar(n)); return isErr(x) ? x : Math.abs(x); });
+def("MOD", "MOD", ([a, b]) => { const x = toNum(scalar(a)), y = toNum(scalar(b)); return firstErr(x, y) || (y === 0 ? err(E.DIV) : x - y * Math.floor(x / y)); });
+
+def("ESQUERDA", "LEFT", ([s, n], given) => { const e = firstErr(s, n); if (e) return e; const k = given[1] ? toNum(scalar(n)) : 1; return k < 0 ? err(E.VAL) : toStr(scalar(s)).slice(0, k); });
+def("DIREITA", "RIGHT", ([s, n], given) => { const e = firstErr(s, n); if (e) return e; const k = given[1] ? toNum(scalar(n)) : 1; const t = toStr(scalar(s)); return k < 0 ? err(E.VAL) : k === 0 ? "" : t.slice(-k); });
+def("EXT.TEXTO", "MID", ([s, a, n]) => { const e = firstErr(s, a, n); if (e) return e; const st = toNum(scalar(a)), k = toNum(scalar(n)); return st < 1 || k < 0 ? err(E.VAL) : toStr(scalar(s)).substr(st - 1, k); });
+def("NÚM.CARACT", "LEN", ([s]) => { const e = firstErr(s); return e || toStr(scalar(s)).length; });
+def("MAIÚSCULA", "UPPER", ([s]) => { const e = firstErr(s); return e || toStr(scalar(s)).toUpperCase(); });
+def("MINÚSCULA", "LOWER", ([s]) => { const e = firstErr(s); return e || toStr(scalar(s)).toLowerCase(); });
+def("ARRUMAR", "TRIM", ([s]) => { const e = firstErr(s); return e || toStr(scalar(s)).replace(/ +/g, " ").trim(); });
+def("CONCAT", "CONCAT", alias((vals) => { let out = ""; for (const a of vals) for (const x of asArr(a).flat()) { if (isErr(x)) return x; out += toStr(x); } return out; }, "CONCATENAR", "CONCATENATE"));
+def("VALOR", "VALUE", ([s]) => { const v = scalar(s); if (isErr(v)) return v; if (typeof v === "number") return v; const n = toNumLoose(toStr(v)); return n === null ? err(E.VAL) : n; });
+
+/* ---------------- dados de exemplo (determinísticos) ---------------- */
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const pick = (r, a) => a[Math.floor(r() * a.length)];
+const int = (r, a, b) => a + Math.floor(r() * (b - a + 1));
+function shuffle(r, a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const CIDADES = ["Curitiba", "São José dos Pinhais", "Colombo", "Araucária", "Pinhais", "Campo Largo", "Fazenda Rio Grande", "Almirante Tamandaré"];
+const TRANSP = ["Braspress", "Jadlog", "DHL", "Correios", "Total Express", "Loggi"];
+const NOMES = ["Ana", "Bruno", "Camila", "Diego", "Elisa", "Felipe", "Gabriela", "Henrique", "Isabela", "João", "Karina", "Lucas", "Mariana", "Nicolas", "Olívia", "Paulo", "Raquel", "Sofia", "Thiago", "Vanessa"];
+const SOBRE = ["Silva", "Souza", "Rocha", "Lima", "Costa", "Martins", "Ferreira", "Almeida", "Pereira", "Gomes"];
+const pessoa = r => `${pick(r, NOMES)} ${pick(r, SOBRE)} ${String(int(r, 1, 2200)).padStart(4, "0")}`;
+const rota = n => "ROT-" + String(n).padStart(3, "0");
+function baseRotas(seed, n){
+  const r = rng(seed), vagas = shuffle(r, Array.from({ length: n }, (_, i) => i + 1));
+  return shuffle(r, Array.from({ length: n }, (_, i) => i + 1)).map((k, i) => [rota(k), pick(r, TRANSP), "ONDA " + int(r, 1, 4), vagas[i]]);
+}
+
+/* ---------------- exercícios ---------------- */
+const EXERCICIOS = [];
+
+EXERCICIOS.push({
+  id: "calc", cat: "Aquecimento", nivel: 1, titulo: "Cálculos em uma única célula",
+  enunciado: "<p>Em cada célula amarela, escreva <b>uma</b> fórmula que resolva a conta da coluna B. Use <code>*</code> para multiplicar, <code>/</code> para dividir e parênteses para agrupar.</p><p>Para porcentagem, o Excel entende <code>15%</code> como 0,15.</p>",
+  dica: "Parênteses mudam a ordem: <code>=3*4+6</code> é 18, mas <code>=3*(4+6)</code> é 30. “15% de 250” é <code>15%*250</code>.",
+  explica: "Desconto de 15%: <code>=250-15%*250</code> ou <code>=250*(1-15%)</code>. Acréscimo de 10%: <code>=80*(1+10%)</code>.",
+  grid: [["Nº", "Conta", "Resultado"], [1, "25 + 17"], [2, "150 − (20 × 4)"], [3, "(120 ÷ 6) + 17"], [4, "3 × 4 + 6"], [5, "3 × (4 + 6)"], [6, "(12 + 8) × (9 − 4)"], [7, "250 − 15% de 250"], [8, "80 + 10% de 80"], [9, "(100 − 20) ÷ (2 + 2)"], [10, "360 ÷ 12 + 5"]],
+  alvos: ["=25+17", "=150-(20*4)", "=(120/6)+17", "=3*4+6", "=3*(4+6)", "=(12+8)*(9-4)", "=250-15%*250", "=80+10%*80", "=(100-20)/(2+2)", "=360/12+5"]
+    .map((f, i) => ({ celulas: "C" + (i + 2), resposta: f, rotulo: "Conta " + (i + 1) })),
+});
+
+(() => {
+  const nomes = ["Ana Beatriz", "André Cardoso", "Bianca Ferreira", "Bruno Almeida", "Camila Rocha", "Carlos Eduardo", "Carolina Mendes", "Débora Nunes", "Diego Fernandes", "Eduardo Castro", "Elisa Gomes", "Felipe Araújo", "Fernanda Costa", "Gabriel Santos", "Gustavo Correia", "Heitor Pereira", "Isabela Moreira", "João Silva", "Juliana Lima", "Larissa Gomes"];
+  const notas = [5.9, 8.8, 5.99, 0, 7, 6, 7.1, 9.7, 8, 3, 6.3, 5, 6.1, 6.9, 5.7, 7.3, 6, 5.5, 10, 7];
+  EXERCICIOS.push({
+    id: "se", cat: "Lógica (SE / E / OU)", nivel: 1, titulo: "SE: aprovado ou reprovado + contagem",
+    enunciado: "<p>Na coluna C, use <code>SE</code>: nota maior ou igual à <b>nota mínima (G1)</b> → <code>APROVADO</code>; senão <code>REPROVADO</code>.</p><p>Depois conte aprovados (G3) e reprovados (G4) com <code>CONT.SE</code>, olhando a coluna C inteira.</p>",
+    dica: "Não escreva 6 dentro da fórmula: aponte para <code>$G$1</code>. Se a meta mudar, a planilha se ajusta sozinha. No CONT.SE, o intervalo precisa cobrir <b>todas</b> as linhas: <code>$C$2:$C$21</code>.",
+    explica: "O <code>$</code> em <code>$G$1</code> mantém a referência fixa quando você arrasta a fórmula. Na sua planilha original, o CONT.SE olhava só C7:C17 e C30:C40 — por isso os totais davam 7 e 4 em vez de 20 e 14.",
+    grid: [["Aluno", "Nota", "Situação"], ...nomes.map((n, i) => [n, notas[i], null])],
+    extra: { F1: "Nota mínima", G1: 6, F3: "Aprovados", F4: "Reprovados" },
+    alvos: [
+      { celulas: "C2:C21", resposta: '=SE(B2>=$G$1;"APROVADO";"REPROVADO")', rotulo: "Situação" },
+      { celulas: "G3", resposta: '=CONT.SE($C$2:$C$21;"APROVADO")', rotulo: "Aprovados" },
+      { celulas: "G4", resposta: '=CONT.SE($C$2:$C$21;"REPROVADO")', rotulo: "Reprovados" },
+    ],
+    testes: [{ set: { G1: 7 }, msg: "Com os dados atuais funciona, mas quando a nota mínima (G1) muda para 7 o resultado não acompanha. Troque o 6 fixo por <code>$G$1</code>." }],
+  });
+})();
+
+(() => {
+  const r = rng(11), rows = [];
+  for (let i = 0; i < 150; i++) rows.push([310000 + i, pessoa(r), pick(r, CIDADES)]);
+  EXERCICIOS.push({
+    id: "contse", cat: "Contagem e soma", nivel: 1, titulo: "CONT.SE por cidade (travando com $)",
+    enunciado: "<p>São 150 pedidos. Em G2, conte quantos pedidos existem para a cidade de F2 e arraste até G9. Em G10, some o total — ele deve fechar com 150.</p>",
+    dica: "O intervalo de busca é sempre o mesmo: trave com <code>$C$2:$C$151</code>. Só o critério (F2) deve andar.",
+    explica: "Conferir o total é um hábito de Problem Solver: se a soma por categoria não bate com o total de linhas, falta categoria ou o intervalo está errado. Na sua planilha havia <code>$D$6:D6:$D$8505</code> — funciona por acaso, mas o certo é <code>$D$6:$D$8505</code>.",
+    grid: [["Pedido", "Cliente", "Cidade"], ...rows],
+    extra: Object.assign({ F1: "Cidade", G1: "Pedidos", F10: "Total" }, ...CIDADES.map((c, i) => ({ ["F" + (i + 2)]: c }))),
+    alvos: [
+      { celulas: "G2:G9", resposta: "=CONT.SE($C$2:$C$151;F2)", rotulo: "Pedidos por cidade" },
+      { celulas: "G10", resposta: "=SOMA(G2:G9)", rotulo: "Total" },
+    ],
+  });
+})();
+
+(() => {
+  const base = baseRotas(21, 30), r = rng(22);
+  const pedidos = shuffle(r, base).slice(0, 15).map(b => [b[0], null, null, null]);
+  EXERCICIOS.push({
+    id: "procv", cat: "Busca (PROCV / ÍNDICE / PROCX)", nivel: 2, titulo: "PROCV: transportadora, onda e vaga pela rota",
+    enunciado: "<p>Igual ao seu exercício de controle de vagas: a coluna A traz a ROTA. Busque na base (G:J) a <b>transportadora</b>, a <b>onda</b> e a <b>vaga</b>.</p><p>Escreva só a fórmula da linha 2 de cada coluna — o treino arrasta até a linha 16.</p>",
+    dica: "<code>=PROCV(A2;$G$2:$J$31;2;FALSO)</code> — a rota precisa estar na 1ª coluna da tabela, o nº da coluna conta a partir dela, e o 4º argumento <b>FALSO</b> (ou 0) força correspondência exata.",
+    explica: "Para a vaga muda só o número da coluna: 4. Atenção: na sua planilha, a fórmula da vaga em E5 olhava <code>C6</code> (uma linha abaixo), por isso todas as vagas vieram deslocadas e a última deu #N/D. A fórmula da linha 5 tem que olhar a rota da linha 5.",
+    grid: [["ROTA", "TRANSPORTADORA", "ONDA", "VAGA", null, null, "ROTA", "TRANSPORTADORA", "ONDA", "VAGA"], ...Array.from({ length: 30 }, (_, i) => [...(pedidos[i] || [null, null, null, null]), null, null, ...base[i]])],
+    alvos: [
+      { celulas: "B2:B16", resposta: "=PROCV(A2;$G$2:$J$31;2;FALSO)", rotulo: "Transportadora" },
+      { celulas: "C2:C16", resposta: "=PROCV(A2;$G$2:$J$31;3;FALSO)", rotulo: "Onda" },
+      { celulas: "D2:D16", resposta: "=PROCV(A2;$G$2:$J$31;4;FALSO)", rotulo: "Vaga" },
+    ],
+  });
+})();
+
+(() => {
+  const base = baseRotas(31, 20).map(b => [b[0], b[1]]), r = rng(32);
+  const consulta = shuffle(r, [...shuffle(r, base).slice(0, 8).map(b => b[0]), "ROT-091", "ROT-077", "ROT-102", "ROT-088"]);
+  EXERCICIOS.push({
+    id: "seerro", cat: "Busca (PROCV / ÍNDICE / PROCX)", nivel: 2, titulo: "PROCV + SEERRO: rota não cadastrada",
+    enunciado: "<p>Algumas rotas da coluna A não existem na base (F:G). Traga a transportadora; quando não encontrar, mostre <code>NÃO CADASTRADA</code> em vez de #N/D.</p>",
+    dica: "Envolva o PROCV: <code>=SEERRO(PROCV(...);\"NÃO CADASTRADA\")</code>.",
+    explica: "SEERRO esconde <i>qualquer</i> erro — inclusive erro de digitação na fórmula. Na prova, primeiro faça o PROCV funcionar, depois coloque o SEERRO. No Excel 365, <code>SENÃODISP</code> trata só o #N/D.",
+    grid: [["ROTA", "TRANSPORTADORA", null, null, null, "ROTA", "TRANSPORTADORA"], ...Array.from({ length: 20 }, (_, i) => [consulta[i] ?? null, null, null, null, null, ...base[i]])],
+    alvos: [{ celulas: "B2:B13", resposta: '=SEERRO(PROCV(A2;$F$2:$G$21;2;FALSO);"NÃO CADASTRADA")', rotulo: "Transportadora" }],
+  });
+})();
+
+(() => {
+  const r = rng(41), rows = [];
+  for (let i = 0; i < 60; i++) rows.push([550000 + i, pick(r, TRANSP), int(r, 1, 40), Math.round((5 + r() * 95) * 10) / 10]);
+  EXERCICIOS.push({
+    id: "somase", cat: "Contagem e soma", nivel: 2, titulo: "SOMASE e MÉDIASE por transportadora",
+    enunciado: "<p>Para cada transportadora (F2:F7), calcule o <b>total de volumes</b> (coluna G) e o <b>peso médio</b> por pedido (coluna H).</p>",
+    dica: "<code>=SOMASE(onde_procurar;o_que_procurar;o_que_somar)</code>. MÉDIASE tem a mesma ordem.",
+    explica: "Cuidado com a ordem: em SOMASE o intervalo de soma vem por <b>último</b>; em SOMASES ele vem <b>primeiro</b>. Arredondar com ARRED(...;1) também é aceito na coluna H.",
+    grid: [["Pedido", "Transportadora", "Volumes", "Peso (kg)"], ...rows],
+    extra: Object.assign({ F1: "Transportadora", G1: "Total volumes", H1: "Peso médio (kg)" }, ...TRANSP.map((t, i) => ({ ["F" + (i + 2)]: t }))),
+    alvos: [
+      { celulas: "G2:G7", resposta: "=SOMASE($B$2:$B$61;F2;$C$2:$C$61)", rotulo: "Total volumes" },
+      { celulas: "H2:H7", resposta: "=MÉDIASE($B$2:$B$61;F2;$D$2:$D$61)", rotulo: "Peso médio", tol: 0.05, fmt: "dec1" },
+    ],
+  });
+})();
+
+(() => {
+  const r = rng(51), rows = [];
+  for (let i = 0; i < 80; i++) rows.push([700000 + i, pick(r, TRANSP), "ONDA " + int(r, 1, 4)]);
+  EXERCICIOS.push({
+    id: "contses", cat: "Contagem e soma", nivel: 3, titulo: "CONT.SES em matriz (referência mista)",
+    enunciado: "<p>Monte a matriz <b>transportadora × onda</b>: em G3, conte os pedidos da transportadora de F3 na onda de G2. A mesma fórmula deve funcionar arrastando para a <b>direita</b> e para <b>baixo</b> (G3:J8).</p>",
+    dica: "Trave a coluna do rótulo da linha (<code>$F3</code>) e a linha do cabeçalho (<code>G$2</code>). Os intervalos de dados ficam totalmente travados.",
+    explica: "Referência mista é o que mais diferencia candidato em prova de Excel: <code>$F3</code> sempre olha a coluna F mas muda de linha; <code>G$2</code> sempre olha a linha 2 mas muda de coluna.",
+    grid: [["Pedido", "Transportadora", "Onda"], ...rows],
+    extra: Object.assign({ F1: "Pedidos por transportadora × onda", G2: "ONDA 1", H2: "ONDA 2", I2: "ONDA 3", J2: "ONDA 4" }, ...TRANSP.map((t, i) => ({ ["F" + (i + 3)]: t }))),
+    alvos: [{ celulas: "G3:J8", resposta: "=CONT.SES($B$2:$B$81;$F3;$C$2:$C$81;G$2)", rotulo: "Matriz" }],
+  });
+})();
+
+(() => {
+  const r = rng(61), rows = [];
+  const deltas = [-5, 0, 1, 2, 3, 6, -1, 2, 4, -3, 1, 8, 0, 2.5, -2];
+  deltas.forEach((d, i) => { const prazo = pick(r, [24, 48, 72]); rows.push([800100 + i, prazo, prazo + d, null]); });
+  EXERCICIOS.push({
+    id: "sla", cat: "Lógica (SE / E / OU)", nivel: 2, titulo: "SE aninhado: status de SLA",
+    enunciado: "<p>Compare o tempo <b>realizado</b> (C) com o <b>prazo</b> (B), em horas:</p><p>• realizado ≤ prazo → <code>NO PRAZO</code><br>• até 2 h além do prazo → <code>ATENÇÃO</code><br>• mais de 2 h → <code>ATRASADO</code></p>",
+    dica: "Teste do caso mais restrito para o mais amplo: <code>=SE(C2&lt;=B2;\"NO PRAZO\";SE(C2-B2&lt;=2;\"ATENÇÃO\";\"ATRASADO\"))</code>.",
+    explica: "No Excel 365 dá para usar <code>SES</code>: <code>=SES(C2&lt;=B2;\"NO PRAZO\";C2-B2&lt;=2;\"ATENÇÃO\";VERDADEIRO;\"ATRASADO\")</code>. Repare nos limites: exatamente 2 h de atraso ainda é ATENÇÃO.",
+    grid: [["Pedido", "Prazo (h)", "Realizado (h)", "Status"], ...rows],
+    alvos: [{ celulas: "D2:D16", resposta: '=SE(C2<=B2;"NO PRAZO";SE(C2-B2<=2;"ATENÇÃO";"ATRASADO"))', rotulo: "Status" }],
+  });
+})();
+
+(() => {
+  const r = rng(71), rows = [];
+  for (let i = 0; i < 15; i++) { const cap = pick(r, [1000, 3500, 7000, 12000]); rows.push(["CG-" + (101 + i), Math.round(cap * (0.6 + r() * 0.6)), cap, r() < 0.7 ? "OK" : "PENDENTE", null]); }
+  EXERCICIOS.push({
+    id: "e-ou", cat: "Lógica (SE / E / OU)", nivel: 2, titulo: "SE com E: liberação de carga",
+    enunciado: "<p>A carga só é <code>LIBERAR</code> quando <b>as duas</b> condições são verdadeiras: peso ≤ capacidade do veículo <b>e</b> documentação = <code>OK</code>. Caso contrário, <code>BLOQUEAR</code>.</p>",
+    dica: "<code>E(condição1;condição2)</code> devolve VERDADEIRO só se todas forem verdadeiras. Coloque o E dentro do teste do SE.",
+    explica: "Troque E por OU quando basta uma condição. Exemplo de prova: “bloquear se estiver acima do peso OU sem documento” → <code>=SE(OU(B2&gt;C2;D2&lt;&gt;\"OK\");\"BLOQUEAR\";\"LIBERAR\")</code>, que dá o mesmo resultado.",
+    grid: [["Carga", "Peso (kg)", "Capacidade (kg)", "Documentação", "Status"], ...rows],
+    alvos: [{ celulas: "E2:E16", resposta: '=SE(E(B2<=C2;D2="OK");"LIBERAR";"BLOQUEAR")', rotulo: "Status" }],
+  });
+})();
+
+(() => {
+  const base = baseRotas(81, 30).map(b => [b[0], b[1], b[3]]), r = rng(82);
+  const vagas = shuffle(r, base.map(b => b[2])).slice(0, 6);
+  EXERCICIOS.push({
+    id: "indice", cat: "Busca (PROCV / ÍNDICE / PROCX)", nivel: 3, titulo: "ÍNDICE + CORRESP: buscar à esquerda",
+    enunciado: "<p>Você sabe a <b>VAGA</b> (doca) e quer descobrir a <b>ROTA</b> e a <b>TRANSPORTADORA</b>. Como a vaga está na coluna C (à direita), o PROCV não resolve.</p>",
+    dica: "<code>CORRESP(F2;$C$2:$C$31;0)</code> devolve a <b>posição</b> da vaga. <code>ÍNDICE($A$2:$A$31;posição)</code> devolve o valor nessa posição.",
+    explica: "ÍNDICE+CORRESP funciona em qualquer direção e não quebra se alguém inserir colunas na tabela — por isso é muito cobrado. O 0 no CORRESP é o equivalente ao FALSO do PROCV.",
+    grid: [["ROTA", "TRANSPORTADORA", "VAGA", null, null, "VAGA", "ROTA", "TRANSPORTADORA"], ...base.map((b, i) => [...b, null, null, vagas[i] ?? null, null, null])],
+    alvos: [
+      { celulas: "G2:G7", resposta: "=ÍNDICE($A$2:$A$31;CORRESP(F2;$C$2:$C$31;0))", rotulo: "Rota" },
+      { celulas: "H2:H7", resposta: "=ÍNDICE($B$2:$B$31;CORRESP(F2;$C$2:$C$31;0))", rotulo: "Transportadora" },
+    ],
+  });
+})();
+
+(() => {
+  const base = baseRotas(91, 30).map(b => [b[0], b[1], b[3]]), r = rng(92);
+  const vagas = shuffle(r, [...shuffle(r, base.map(b => b[2])).slice(0, 5), 35, 42]);
+  EXERCICIOS.push({
+    id: "procx", cat: "Busca (PROCV / ÍNDICE / PROCX)", nivel: 2, titulo: "PROCX (Excel 365): busca com valor padrão",
+    enunciado: "<p>Mesma ideia do exercício anterior, agora com <code>PROCX</code>. Algumas vagas não existem — nesses casos mostre <code>SEM ROTA</code>.</p>",
+    dica: "<code>=PROCX(o_que_procurar;onde_procurar;o_que_devolver;\"se não achar\")</code>.",
+    explica: "PROCX já é exato por padrão e tem o “se não encontrado” embutido, então não precisa de SEERRO. Se a máquina da prova tiver Excel antigo (2016/2019), ele não existe: tenha ÍNDICE+CORRESP como plano B.",
+    grid: [["ROTA", "TRANSPORTADORA", "VAGA", null, null, "VAGA", "ROTA"], ...base.map((b, i) => [...b, null, null, vagas[i] ?? null, null])],
+    alvos: [{ celulas: "G2:G8", resposta: '=PROCX(F2;$C$2:$C$31;$A$2:$A$31;"SEM ROTA")', rotulo: "Rota" }],
+  });
+})();
+
+(() => {
+  const r = rng(101), rows = [];
+  for (let i = 0; i < 10; i++) { const h = pick(r, [6, 7.5, 8, 8.8]); const vol = Math.round(h * (85 + r() * 70)); rows.push([pessoa(r).replace(/ \d+$/, ""), vol, h, int(r, 0, 12)]); }
+  EXERCICIOS.push({
+    id: "kpi", cat: "Indicadores e texto", nivel: 2, titulo: "Indicadores: produtividade, acuracidade e meta",
+    enunciado: "<p>Para cada operador calcule:</p><p>• <b>E</b> – produtividade = volumes ÷ horas<br>• <b>F</b> – acuracidade = 1 − erros ÷ volumes (formate como %)<br>• <b>G</b> – <code>BATEU</code> se a produtividade ≥ meta (J1), senão <code>ABAIXO</code><br>• <b>J3</b> – média de produtividade da equipe</p>",
+    dica: "Acuracidade: <code>=1-D2/B2</code> (a divisão acontece antes da subtração). Na coluna G você pode reaproveitar a coluna E: <code>=SE(E2&gt;=$J$1;...)</code>.",
+    explica: "Indicadores de armazém costumam ser razões (por hora, por pedido, %). Pense sempre: “o que divide o quê?” e trave a meta com $. Arredondar com ARRED(...;1) também é aceito em E.",
+    grid: [["Operador", "Volumes", "Horas", "Erros", "Vol/hora", "Acuracidade", "Meta"], ...rows],
+    extra: { I1: "Meta (vol/h)", J1: 115, I3: "Média vol/h" },
+    alvos: [
+      { celulas: "E2:E11", resposta: "=B2/C2", rotulo: "Produtividade", tol: 0.05, fmt: "dec1" },
+      { celulas: "F2:F11", resposta: "=1-D2/B2", rotulo: "Acuracidade", tol: 0.00005, fmt: "pct" },
+      { celulas: "G2:G11", resposta: '=SE(B2/C2>=$J$1;"BATEU";"ABAIXO")', rotulo: "Meta" },
+      { celulas: "J3", resposta: "=MÉDIA(E2:E11)", rotulo: "Média da equipe", tol: 0.05, fmt: "dec1" },
+    ],
+    testes: [{ set: { J1: 130 }, msg: "Quando a meta (J1) muda para 130, a coluna G não acompanha. Use <code>$J$1</code> em vez do número fixo." }],
+  });
+})();
+
+(() => {
+  const r = rng(111), pref = ["CWB-PR", "SAO-SP", "POA-RS", "BHZ-MG", "FLN-SC", "REC-PE", "RIO-RJ"], rows = [];
+  for (let i = 0; i < 12; i++) rows.push([`${pick(r, pref)}-${String(int(r, 1, 99999)).padStart(5, "0")}`, null, null, null]);
+  EXERCICIOS.push({
+    id: "texto", cat: "Indicadores e texto", nivel: 2, titulo: "Funções de texto: quebrando um código",
+    enunciado: "<p>O código tem o formato <code>CID-UF-NÚMERO</code> (ex.: CWB-PR-00123). Extraia:</p><p>• <b>B</b> – a UF (2 letras do meio)<br>• <b>C</b> – o número como <b>número</b> (00123 → 123)<br>• <b>D</b> – uma etiqueta no formato <code>CWB-00123</code> (cidade + hífen + 5 dígitos)</p>",
+    dica: "<code>EXT.TEXTO(texto;início;quantidade)</code>: a UF começa no 5º caractere. <code>DIREITA(A2;5)</code> dá “00123” como texto; <code>VALOR()</code> converte em número. Junte textos com <code>&amp;</code>.",
+    explica: "Número salvo como texto é a causa nº 1 de PROCV com #N/D em base logística (código 00123 de um lado e 123 do outro). VALOR() ou multiplicar por 1 resolve.",
+    grid: [["Código", "UF", "Número", "Etiqueta"], ...rows],
+    alvos: [
+      { celulas: "B2:B13", resposta: "=EXT.TEXTO(A2;5;2)", rotulo: "UF" },
+      { celulas: "C2:C13", resposta: "=VALOR(DIREITA(A2;5))", rotulo: "Número" },
+      { celulas: "D2:D13", resposta: '=ESQUERDA(A2;3)&"-"&DIREITA(A2;5)', rotulo: "Etiqueta" },
+    ],
+  });
+})();
+
+(() => {
+  const r = rng(121), cid = CIDADES.slice(0, 4), clientes = Array.from({ length: 18 }, () => pessoa(r)), rows = [];
+  for (let i = 0; i < 60; i++) rows.push([pick(r, clientes), pick(r, cid)]);
+  EXERCICIOS.push({
+    id: "unicos", cat: "Avançado (Excel 365)", nivel: 3, titulo: "Pedidos × clientes únicos por cidade",
+    enunciado: "<p>Este é o “desafio extra” da sua aba de 8.500 registros. Para cada cidade conte:</p><p>• <b>G</b> – clientes <b>únicos</b> (cada cliente conta uma vez)<br>• <b>H</b> – total de pedidos (linhas)</p>",
+    dica: "Filtre os clientes da cidade, tire repetidos e conte as linhas: <code>=LINS(ÚNICO(FILTRO($A$2:$A$61;$B$2:$B$61=F2)))</code>.",
+    explica: "Sem Excel 365, a alternativa é uma tabela dinâmica com “Contagem distinta” (marcar “Adicionar estes dados ao Modelo de Dados”) ou Remover Duplicatas numa cópia. Pedidos ≥ clientes únicos, sempre — use isso para conferir.",
+    grid: [["Cliente", "Cidade"], ...rows],
+    extra: Object.assign({ F1: "Cidade", G1: "Clientes únicos", H1: "Pedidos" }, ...cid.map((c, i) => ({ ["F" + (i + 2)]: c }))),
+    alvos: [
+      { celulas: "G2:G5", resposta: "=LINS(ÚNICO(FILTRO($A$2:$A$61;$B$2:$B$61=F2)))", rotulo: "Clientes únicos" },
+      { celulas: "H2:H5", resposta: "=CONT.SE($B$2:$B$61;F2)", rotulo: "Pedidos" },
+    ],
+  });
+})();
+
+const CAT_ORDER = ["Aquecimento", "Lógica (SE / E / OU)", "Contagem e soma", "Busca (PROCV / ÍNDICE / PROCX)", "Indicadores e texto", "Avançado (Excel 365)"];
+const catIdx = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? CAT_ORDER.length : i; };
+EXERCICIOS.sort((a, b) => catIdx(a.cat) - catIdx(b.cat) || a.nivel - b.nivel);
+
+/* ---------------- interface ---------------- */
+const $ = s => document.querySelector(s);
+const STORE = "treinoExcelPS.v1";
+let state = { done: {}, inputs: {}, best: {} };
+try { const s = JSON.parse(localStorage.getItem(STORE)); if (s) state = Object.assign(state, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
+let cur = 0, t0 = Date.now(), timerOn = true, selCell = null, lastSheet = null;
+const parsedAnswers = new Map();
+const answersOf = ex => { if (!parsedAnswers.has(ex.id)) parsedAnswers.set(ex.id, ex.alvos.map(a => parseFormula(a.resposta))); return parsedAnswers.get(ex.id); };
+
+function buildSheet(ex, formulas, overrides){
+  const sh = new Sheet();
+  ex.grid.forEach((row, ri) => row.forEach((v, ci) => { if (v !== null && v !== undefined && v !== "") sh.setValue(ci + 1, ri + 1, v); }));
+  for (const [a, v] of Object.entries(Object.assign({}, ex.extra, overrides))) { const p = parseAddr(a); sh.setValue(p.c, p.r, v); }
+  ex.alvos.forEach((al, k) => {
+    const p = formulas[k]; if (!p) return;
+    const R = parseRange(al.celulas);
+    for (let r = R.r1; r <= R.r2; r++) for (let c = R.c1; c <= R.c2; c++) sh.setFormula(c, r, p, r - R.r1, c - R.c1);
+  });
+  return sh;
+}
+const loose = s => norm(s).trim().replace(/\s+/g, " ");
+function same(a, b, tol){
+  if (isErr(a) || isErr(b)) return isErr(a) && isErr(b) && a.code === b.code;
+  if (typeof a === "number" && typeof b === "number") return Math.abs(a - b) <= (tol ?? 1e-9);
+  if (typeof a === "string" && typeof b === "string") return loose(a) === loose(b);
+  return a === b;
+}
+function compareAlvo(ex, k, up, set){
+  const ans = answersOf(ex), al = ex.alvos[k], R = parseRange(al.celulas);
+  const exp = buildSheet(ex, ans, set), usr = buildSheet(ex, ans.map((a, i) => i === k ? up : a), set);
+  const out = { cells: [], okN: 0, tot: 0, firstBad: null, caseNote: false };
+  for (let r = R.r1; r <= R.r2; r++) for (let c = R.c1; c <= R.c2; c++) {
+    const a = usr.get(c, r), b = exp.get(c, r), ok = same(a, b, al.tol);
+    out.tot++; if (ok) out.okN++;
+    if (ok && typeof a === "string" && a.trim() !== b.trim()) out.caseNote = true;
+    out.cells.push({ c, r, ok });
+    if (!ok && !out.firstBad) out.firstBad = { c, r, got: a, exp: b, f: formulaText(up.toks, r - R.r1, c - R.c1) };
+  }
+  out.ok = out.okN === out.tot;
+  out.firstOk = out.cells[0] && out.cells[0].ok;
+  return out;
+}
+function walk(n, f){ if (!n) return; f(n); (n.args || []).forEach(a => walk(a, f)); if (n.a) { walk(n.a, f); walk(n.b, f); } if (n.x) walk(n.x, f); }
+function tips(up, res){
+  const t = [];
+  walk(up.ast, n => {
+    if (n.k === "fn" && (n.name === "PROCV" || n.name === "VLOOKUP") && n.args.length === 3) t.push("Seu PROCV está sem o 4º argumento. Sem <code>FALSO</code> (ou 0) o Excel faz busca <b>aproximada</b> e traz valores errados quando a base não está ordenada.");
+    if (n.k === "fn" && !FN[n.name]) t.push(`Função <code>${n.raw}</code> não reconhecida — confira a grafia (ex.: CONT.SE, PROCV, ÍNDICE).`);
+    if (n.k === "name") t.push(`<code>${n.v}</code> não é célula nem função. Se for texto, coloque entre aspas: <code>"${n.v}"</code>.`);
+  });
+  const fb = res.firstBad;
+  if (fb && isErr(fb.got) && fb.got.code === E.NA) t.push("#N/D = valor não encontrado. A chave está na 1ª coluna do intervalo? O intervalo está travado com $?");
+  if (fb && typeof fb.got === "string" && typeof fb.exp === "number" && toNumLoose(fb.got) !== null) t.push("O resultado saiu como <b>texto</b>; o esperado é número. Use <code>VALOR()</code>.");
+  if (fb && typeof fb.got === "boolean" && typeof fb.exp === "string") t.push("Saiu VERDADEIRO/FALSO: faltou colocar o teste dentro de um <code>SE</code> com os textos de resposta.");
+  return [...new Set(t)];
+}
+function show(v, fmt){
+  if (v === null || v === undefined) return "";
+  if (isErr(v)) return v.code;
+  if (typeof v === "boolean") return v ? "VERDADEIRO" : "FALSO";
+  if (typeof v === "number") {
+    if (fmt === "pct") return (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%";
+    if (fmt === "dec1") return v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: false });
+    return v.toLocaleString("pt-BR", { maximumFractionDigits: 4, useGrouping: false });
+  }
+  return String(v);
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderSide(){
+  const side = $("#side"), sel = $("#mobileSel"); side.innerHTML = ""; sel.innerHTML = "";
+  let last = null;
+  EXERCICIOS.forEach((ex, i) => {
+    if (ex.cat !== last) { last = ex.cat; side.insertAdjacentHTML("beforeend", `<div class="grp">${esc(ex.cat)}</div>`); }
+    const b = document.createElement("button");
+    b.className = "item" + (i === cur ? " on" : "") + (state.done[ex.id] ? " done" : "");
+    b.innerHTML = `<span class="dot"></span><span>${i + 1}. ${esc(ex.titulo)}</span>`;
+    b.onclick = () => openEx(i);
+    side.appendChild(b);
+    sel.insertAdjacentHTML("beforeend", `<option value="${i}" ${i === cur ? "selected" : ""}>${state.done[ex.id] ? "✓ " : ""}${i + 1}. ${esc(ex.titulo)}</option>`);
+  });
+  const n = EXERCICIOS.filter(e => state.done[e.id]).length;
+  $("#progTxt").textContent = `${n}/${EXERCICIOS.length} concluídos`;
+  $("#progFill").style.width = (100 * n / EXERCICIOS.length) + "%";
+}
+
+function openEx(i){
+  cur = Math.max(0, Math.min(EXERCICIOS.length - 1, i));
+  const ex = EXERCICIOS[cur];
+  $("#exCat").textContent = ex.cat;
+  $("#exLvl").textContent = "Nível " + "●".repeat(ex.nivel) + "○".repeat(3 - ex.nivel);
+  $("#exTitle").textContent = `${cur + 1}. ${ex.titulo}`;
+  $("#exText").innerHTML = ex.enunciado;
+  $("#hint").hidden = true; $("#ans").hidden = true;
+  const saved = state.inputs[ex.id] || [];
+  $("#alvos").innerHTML = ex.alvos.map((al, k) => {
+    const R = parseRange(al.celulas), first = addrOf(R.c1, R.r1), multi = al.celulas.includes(":");
+    const info = multi ? `fórmula de <b>${first}</b>, copiada até <b>${addrOf(R.c2, R.r2)}</b>` : `célula <b>${first}</b>`;
+    return `<div class="alvo"><label for="in${k}">${esc(al.rotulo || "")} — ${info}</label>
+      <input class="f-input" id="in${k}" data-k="${k}" spellcheck="false" autocomplete="off" placeholder="=..." value="${esc(saved[k] || "")}">
+      <div class="fb" id="fb${k}" hidden></div></div>`;
+  }).join("");
+  document.querySelectorAll(".f-input").forEach(inp => {
+    inp.addEventListener("input", () => { (state.inputs[ex.id] ||= [])[+inp.dataset.k] = inp.value; save(); });
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); check(); } });
+  });
+  selCell = null; $("#fbAddr").textContent = "—"; $("#fbText").textContent = "Clique numa célula para ver o valor ou a fórmula";
+  t0 = Date.now(); timerOn = !state.done[ex.id];
+  tick();
+  renderGrid(buildSheet(ex, ex.alvos.map(() => null)), new Map());
+  renderSide();
+  try { localStorage.setItem(STORE + ".cur", cur); } catch (e) {}
+  if (window.innerWidth <= 860) window.scrollTo({ top: 0 });
+}
+
+function renderGrid(sh, status){
+  const ex = EXERCICIOS[cur]; lastSheet = sh;
+  const alvoMap = new Map();
+  ex.alvos.forEach(al => { const R = parseRange(al.celulas); for (let r = R.r1; r <= R.r2; r++) for (let c = R.c1; c <= R.c2; c++) { alvoMap.set(c + "," + r, al); sh.bump(c, r); } });
+  const extraLbl = new Set(Object.entries(ex.extra || {}).filter(([, v]) => typeof v === "string").map(([a]) => { const p = parseAddr(a); return p.c + "," + p.r; }));
+  const W = sh.maxCol, H = sh.maxRow;
+  let h = "<thead><tr><th></th>";
+  for (let c = 1; c <= W; c++) h += `<th>${numToCol(c)}</th>`;
+  h += "</tr></thead><tbody>";
+  for (let r = 1; r <= H; r++) {
+    h += `<tr><th>${r}</th>`;
+    for (let c = 1; c <= W; c++) {
+      const key = c + "," + r, al = alvoMap.get(key), cell = sh.cell(c, r);
+      const v = cell ? sh.get(c, r) : null;
+      const cls = [];
+      if (r === 1 && !al && ex.grid[0] && ex.grid[0][c - 1] != null) cls.push("hdr");
+      if (extraLbl.has(key)) cls.push("lbl");
+      if (al) cls.push(status.has(key) ? (status.get(key) ? "ok" : "bad") : "alvo");
+      if (typeof v === "number") cls.push("num");
+      if (isErr(v)) cls.push("err");
+      if (selCell === key) cls.push("sel");
+      h += `<td data-c="${c}" data-r="${r}" class="${cls.join(" ")}">${esc(show(v, al && al.fmt))}</td>`;
+    }
+    h += "</tr>";
+  }
+  $("#grid").innerHTML = h + "</tbody>";
+}
+$("#grid").addEventListener("click", e => {
+  const td = e.target.closest("td"); if (!td || !lastSheet) return;
+  const c = +td.dataset.c, r = +td.dataset.r, cell = lastSheet.cell(c, r);
+  document.querySelectorAll("#grid td.sel").forEach(x => x.classList.remove("sel"));
+  td.classList.add("sel"); selCell = c + "," + r;
+  $("#fbAddr").textContent = addrOf(c, r);
+  if (!cell) $("#fbText").textContent = "(vazia)";
+  else if (cell.p) $("#fbText").textContent = formulaText(cell.p.toks, cell.dr, cell.dc) + "   →   " + show(lastSheet.get(c, r));
+  else $("#fbText").textContent = show(cell.v);
+});
+
+function check(){
+  const ex = EXERCICIOS[cur];
+  const inputs = [...document.querySelectorAll(".f-input")].map(i => i.value.trim());
+  const ups = [], status = new Map();
+  let allOk = true;
+  ex.alvos.forEach((al, k) => {
+    const fb = $("#fb" + k), txt = inputs[k];
+    fb.hidden = false; ups[k] = null;
+    const say = (cls, html) => { fb.className = "fb " + cls; fb.innerHTML = html; };
+    if (!txt) { allOk = false; return say("info", "Ainda não preenchido."); }
+    if (!txt.startsWith("=")) { allOk = false; return say("bad", 'A fórmula precisa começar com <code>=</code>. Digitar o valor na mão não conta!'); }
+    let up;
+    try { up = parseFormula(txt); } catch (e) { allOk = false; return say("bad", "Erro de sintaxe: " + esc(e.message)); }
+    ups[k] = up;
+    let res = compareAlvo(ex, k, up);
+    let varMsg = null;
+    if (res.ok) for (const t of ex.testes || []) { const r2 = compareAlvo(ex, k, up, t.set); if (!r2.ok) { varMsg = t.msg; break; } }
+    res.cells.forEach(x => status.set(x.c + "," + x.r, x.ok && !varMsg));
+    const tp = tips(up, res).map(s => `<span class="tip">💡 ${s}</span>`).join("");
+    if (res.ok && !varMsg) {
+      say("ok", `✔ Correto! (${res.okN}/${res.tot} ${res.tot > 1 ? "células" : "célula"})` + (res.caseNote ? '<span class="tip">Obs.: maiúsculas/acentos diferentes do pedido. O treino aceita, mas na prova copie o texto exatamente.</span>' : "") + tp);
+      return;
+    }
+    allOk = false;
+    if (varMsg) return say("bad", "Quase! " + varMsg + tp);
+    const fbx = res.firstBad, where = addrOf(fbx.c, fbx.r);
+    const shown = v => typeof v === "string" ? `"${v}" (texto)` : show(v, al.fmt);
+    let msg = `✘ ${res.okN}/${res.tot} certas. Em <b>${where}</b> deu <code>${esc(shown(fbx.got))}</code>, esperado <code>${esc(shown(fbx.exp))}</code>.`;
+    const dollars = s => (s.match(/\$/g) || []).length;
+    if (res.tot > 1 && res.firstOk && dollars(txt) < dollars(al.resposta)) msg += `<span class="tip">A 1ª célula está certa, mas ao arrastar quebrou. Em ${where} a fórmula virou <code>${esc(fbx.f)}</code> — faltou travar algo com <code>$</code>?</span>`;
+    say("bad", msg + tp);
+  });
+  const disp = buildSheet(ex, ex.alvos.map((_, k) => ups[k]));
+  renderGrid(disp, status);
+  if (allOk) {
+    const secs = Math.round((Date.now() - t0) / 1000);
+    if (!state.done[ex.id]) { state.done[ex.id] = true; if (timerOn) state.best[ex.id] = secs; }
+    timerOn = false; save(); tick(); renderSide();
+  }
+}
+function tick(){
+  const ex = EXERCICIOS[cur];
+  const s = timerOn ? Math.floor((Date.now() - t0) / 1000) : state.best[ex.id];
+  const fmt = x => `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`;
+  $("#timer").textContent = timerOn ? "⏱ " + fmt(s) : state.done[ex.id] ? (s != null ? "✓ concluído em " + fmt(s) : "✓ concluído") : "⏱ 00:00";
+}
+setInterval(() => { if (timerOn) tick(); }, 1000);
+
+$("#btnCheck").onclick = check;
+$("#btnHint").onclick = () => { const n = $("#hint"); n.innerHTML = "<b>Dica:</b> " + EXERCICIOS[cur].dica; n.hidden = !n.hidden; };
+$("#btnAns").onclick = () => {
+  const ex = EXERCICIOS[cur], n = $("#ans");
+  if (n.hidden) {
+    const ans = answersOf(ex);
+    n.innerHTML = "<b>Gabarito</b> (tente antes!)" + ex.alvos.map((al, k) =>
+      `<span class="ans">${esc(addrOf(parseRange(al.celulas).c1, parseRange(al.celulas).r1))}: ${esc(al.resposta)}</span><span class="en">em inglês: ${esc(formulaText(ans[k].toks, 0, 0, true))}</span>`).join("") +
+      (ex.explica ? `<p style="margin:.6em 0 0">${ex.explica}</p>` : "");
+  }
+  n.hidden = !n.hidden;
+};
+$("#btnClear").onclick = () => {
+  const ex = EXERCICIOS[cur]; delete state.inputs[ex.id]; delete state.done[ex.id]; delete state.best[ex.id]; save(); openEx(cur);
+};
+$("#prev").onclick = () => openEx(cur - 1);
+$("#next").onclick = () => openEx(cur + 1);
+$("#mobileSel").onchange = e => openEx(+e.target.value);
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  $("#view-ex").hidden = b.dataset.tab !== "ex"; $("#view-cola").hidden = b.dataset.tab !== "cola";
+});
+
+const COLA = [
+  ["SE", "IF", '=SE(B2>=6;"APROVADO";"REPROVADO")', "Texto sempre entre aspas. >= inclui o limite, > não."],
+  ["E / OU", "AND / OR", '=SE(E(B2<=C2;D2="OK");"LIBERAR";"BLOQUEAR")', "E = todas verdadeiras; OU = pelo menos uma."],
+  ["SES", "IFS", '=SES(A2>=90;"A";A2>=70;"B";VERDADEIRO;"C")', "Só no 365/2019+. Último par com VERDADEIRO = “senão”."],
+  ["CONT.SE", "COUNTIF", '=CONT.SE($C$2:$C$151;F2)  ·  =CONT.SE(B:B;">="&G1)', "Operador vai entre aspas e se junta à célula com &."],
+  ["CONT.SES", "COUNTIFS", "=CONT.SES($B:$B;$F3;$C:$C;G$2)", "Pares intervalo/critério; todos do mesmo tamanho."],
+  ["SOMASE", "SUMIF", "=SOMASE($B$2:$B$61;F2;$C$2:$C$61)", "Intervalo de soma por ÚLTIMO."],
+  ["SOMASES", "SUMIFS", "=SOMASES($C:$C;$B:$B;F2;$D:$D;\">100\")", "Intervalo de soma PRIMEIRO (ao contrário do SOMASE)."],
+  ["MÉDIASE", "AVERAGEIF", "=MÉDIASE($B:$B;F2;$D:$D)", "Mesma ordem do SOMASE."],
+  ["PROCV", "VLOOKUP", "=PROCV(A2;$G$2:$J$31;2;FALSO)", "Chave na 1ª coluna; sempre FALSO/0; trave a tabela."],
+  ["ÍNDICE + CORRESP", "INDEX + MATCH", "=ÍNDICE($A$2:$A$31;CORRESP(F2;$C$2:$C$31;0))", "Busca para a esquerda; o 0 do CORRESP = exato."],
+  ["PROCX", "XLOOKUP", '=PROCX(F2;$C:$C;$A:$A;"SEM ROTA")', "Só 365/2021. Já é exato por padrão."],
+  ["SEERRO", "IFERROR", '=SEERRO(PROCV(...);"NÃO ENCONTRADO")', "Esconde qualquer erro: faça a fórmula funcionar antes."],
+  ["ARRED", "ROUND", "=ARRED(B2/C2;1)", "Arredonda o valor; formatar célula só muda a exibição."],
+  ["ESQUERDA / DIREITA / EXT.TEXTO", "LEFT / RIGHT / MID", "=EXT.TEXTO(A2;5;2)", "Resultado é texto: use VALOR() para virar número."],
+  ["&  /  CONCAT", "&  /  CONCAT", '=A2&" - "&B2', "Espaços e hífens também vão entre aspas."],
+  ["ÚNICO / FILTRO / LINS", "UNIQUE / FILTER / ROWS", "=LINS(ÚNICO(FILTRO(A:A;B:B=F2)))", "Só 365. Conta itens distintos que atendem a condição."],
+  ["SOMARPRODUTO", "SUMPRODUCT", "=SOMARPRODUTO(($B$2:$B$61=F2)*$C$2:$C$61)", "Soma condicional que funciona em qualquer versão."],
+];
+$("#colaBody").innerHTML = COLA.map(r => `<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><code>${esc(r[2])}</code></td><td>${esc(r[3])}</td></tr>`).join("");
+
+let start = 0; try { start = +localStorage.getItem(STORE + ".cur") || 0; } catch (e) {}
+openEx(start);
+</script>
+</body>
+</html>
